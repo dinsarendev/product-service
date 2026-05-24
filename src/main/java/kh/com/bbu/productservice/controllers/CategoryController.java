@@ -23,13 +23,7 @@ public class CategoryController {
     public ResponseEntity<Object> createCategory(
         @RequestBody CategoryRequest request
     ){
-        try {
             categoryService.createCategory(request);
-        }catch (ApiException e){
-            return new ResponseEntity<>(
-                new MessageResponse(null, false, e.getMessage(), e.getError())
-                , HttpStatus.OK);
-        }
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
