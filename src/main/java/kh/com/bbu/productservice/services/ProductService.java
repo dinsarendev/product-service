@@ -14,4 +14,5 @@ public interface ProductService {
 
     void delete(int id, ProductRequest request);
     List<ProductResponse> getAllProductByCategoryId(int id);
+    ProductResponse getProductByBarcode(String barcode);
 }
