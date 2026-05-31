@@ -82,4 +82,15 @@ public class ProductController {
         );
     }
 
+    @GetMapping("/barcode/{barcode}")
+    public ResponseEntity<MessageResponse<ProductResponse>> getProductById(@PathVariable("barcode") String barcode){
+        ProductResponse productResponse = productService.getProductByBarcode(barcode);
+        return new ResponseEntity<>(
+            new MessageResponse<>(productResponse, true,
+                "Get product by barcode success",
+                "200"
+            )
+            , HttpStatus.OK);
+    }
+
 }

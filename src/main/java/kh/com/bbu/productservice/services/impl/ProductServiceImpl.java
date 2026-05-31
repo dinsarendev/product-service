@@ -2,15 +2,21 @@ package kh.com.bbu.productservice.services.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import kh.com.bbu.productservice.dto.request.ProductRequest;
 import kh.com.bbu.productservice.dto.response.ProductResponse;
+import kh.com.bbu.productservice.dto.response.ProductUnitResponse;
 import kh.com.bbu.productservice.entities.ProductEntity;
+import kh.com.bbu.productservice.exceptions.ApiException;
 import kh.com.bbu.productservice.mappers.ProductMapper;
+import kh.com.bbu.productservice.mappers.ProductUnitMapper;
 import kh.com.bbu.productservice.repositories.CategoryRepository;
 import kh.com.bbu.productservice.repositories.ProductRepository;
+import kh.com.bbu.productservice.repositories.ProductUnitViewRepository;
 import kh.com.bbu.productservice.services.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,6 +25,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final CategoryRepository categoryRepository;
+    private final ProductUnitViewRepository productUnitViewRepository;
     @Override
     public List<ProductResponse> getAllProducts() {
 //        List<ProductResponse> list = new ArrayList<>();
@@ -34,9 +41,11 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse getProductById(int id) {
         ProductEntity entity = productRepository.findById(id).orElse(null);
         if(entity == null){
-            throw new RuntimeException("Product not found");
+            throw new ApiException("400","Product not found");
         }
-        return productMapper.toResponse(entity);
+        var response =  productMapper.toResponse(entity);
+        response.setProductUnitList(getAllProductUnitResponse(response.getId()));
+        return response;
     }
 
     @Override
@@ -71,6 +80,20 @@ public class ProductServiceImpl implements ProductService {
         return mapProductToResponseList(productRepository.findAllByCategory_IdOrderByIdDesc(id));
     }
 
+    @Override
+    public ProductResponse getProductByBarcode(String barcode) {
+        if(Strings.isBlank(barcode)){
+            throw new ApiException("400", "Barcode is required");
+        }
+        var product = productRepository.findByBarcode(barcode);
+        if(Objects.isNull(product)){
+            throw new ApiException("400", "Product not found");
+        }
+        var response = productMapper.toResponse(product);
+        response.setProductUnitList(getAllProductUnitResponse(response.getId()));
+        return response;
+    }
+
 //    public ProductServiceImpl(ProductRepository productRepository) {
 //        this.productRepository = productRepository;
 //    }
@@ -82,5 +105,14 @@ public class ProductServiceImpl implements ProductService {
             responseList.add(productResponse);
         });
         return responseList;
+    }
+
+    private List<ProductUnitResponse> getAllProductUnitResponse(int productId){
+        List<ProductUnitResponse> productUnitResponsesList = new ArrayList<>();
+        productUnitViewRepository.findAllByProductId(productId).forEach((data)->{
+            var productUnitResponse = ProductUnitMapper.toResponse(data);
+            productUnitResponsesList.add(productUnitResponse);
+        });
+        return productUnitResponsesList;
     }
 }

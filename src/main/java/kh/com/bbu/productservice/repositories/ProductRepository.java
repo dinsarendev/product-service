@@ -11,4 +11,5 @@ public interface ProductRepository extends JpaRepository<ProductEntity,  Integer
     // select * from products where category_id=1
     List<ProductEntity> findAllByCategory_Id(int categoryId);
     List<ProductEntity> findAllByCategory_IdOrderByIdDesc(int categoryId);
+    ProductEntity findByBarcode(String barcode);
 }
