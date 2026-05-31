@@ -1,5 +1,6 @@
 package kh.com.bbu.productservice.dto.response;
 
+import java.util.List;
 import kh.com.bbu.productservice.entities.CategoryEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,4 +21,5 @@ public class ProductResponse {
     private Double discount;
     private String createdDate;// 12/02/2026
     private CategoryEntity category;
+    private List<ProductUnitResponse> productUnitList;
 }
